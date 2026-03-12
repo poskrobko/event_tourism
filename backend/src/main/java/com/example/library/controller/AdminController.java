@@ -68,7 +68,15 @@ public class AdminController {
         User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (request.email() != null && !request.email().isBlank()) {
-            user.setEmail(request.email().trim());
+            String normalizedEmail = request.email().trim();
+            if (!normalizedEmail.equalsIgnoreCase(user.getEmail())) {
+                userRepository.findByEmail(normalizedEmail).ifPresent(existing -> {
+                    if (!existing.getId().equals(user.getId())) {
+                        throw new IllegalArgumentException("Email already in use");
+                    }
+                });
+            }
+            user.setEmail(normalizedEmail);
         }
         if (request.nickname() != null && !request.nickname().isBlank()) {
             user.setNickname(request.nickname().trim());

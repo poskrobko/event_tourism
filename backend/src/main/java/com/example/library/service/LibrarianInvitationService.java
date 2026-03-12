@@ -36,7 +36,11 @@ public class LibrarianInvitationService {
 
     @Transactional
     public AdminDtos.InviteLibrarianResponse invite(AdminDtos.InviteLibrarianRequest request) {
-        String normalizedEmail = request.email().trim();
+        String email = request.email();
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        String normalizedEmail = email.trim();
         User user = userRepository.findByEmail(normalizedEmail).orElseGet(User::new);
         String temporaryPassword = generateTemporaryPassword(14);
 

@@ -1,6 +1,7 @@
 package com.example.library.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,5 +61,14 @@ class LibrarianInvitationServiceTest {
         assertThat(savedRoles).contains(Role.ROLE_ADMIN, Role.ROLE_LIBRARIAN);
 
         verify(mailSender).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void invite_throwsWhenEmailIsNull() {
+        AdminDtos.InviteLibrarianRequest request = new AdminDtos.InviteLibrarianRequest(null, "Admin");
+
+        assertThatThrownBy(() -> librarianInvitationService.invite(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Email is required");
     }
 }

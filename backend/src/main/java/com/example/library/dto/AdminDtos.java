@@ -19,7 +19,7 @@ public class AdminDtos {
     ) {}
 
     public record AdminUserUpdateRequest(
-            @Email String email,
+            @Email @NotBlank String email,
             @Size(min = 2, max = 50) String nickname,
             Set<Role> roles
     ) {}
@@ -77,7 +77,7 @@ public class AdminDtos {
     ) {}
 
     public record InviteLibrarianRequest(
-            @Email String email,
+            @Email @NotBlank String email,
             @Size(min = 2, max = 50) String nickname
     ) {}
 
