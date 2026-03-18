@@ -14,7 +14,7 @@ import {
   type CreateBookFormValues,
   type SimpleCatalogSearchValues,
 } from '../lib/schemas';
-import { useBooksQuery, useBorrowBookMutation, useCatalogMetaQuery, useCreateBookMutation } from '../features/catalog/hooks';
+import { useBooksQuery, useCatalogMetaQuery, useCreateBookMutation, useOrderBookMutation } from '../features/catalog/hooks';
 import { parseJwt } from '../lib/auth';
 import { useRecommendationsQuery } from '../features/preferences/hooks';
 
@@ -62,7 +62,7 @@ export function CatalogPage() {
   const metaQuery = useCatalogMetaQuery();
   const recommendationsQuery = useRecommendationsQuery(currentUserId);
   const recommendedIds = new Set(recommendationsQuery.data?.content.map((item) => item.book.id) ?? []);
-  const borrowMutation = useBorrowBookMutation(params);
+  const orderMutation = useOrderBookMutation(params);
   const createBookMutation = useCreateBookMutation(params);
 
   const [bookFile, setBookFile] = useState<File | null>(null);
@@ -154,12 +154,12 @@ export function CatalogPage() {
     });
   };
 
-  const onBorrow = (bookId: number) => {
+  const onOrder = (bookId: number) => {
     if (!currentUserId) {
       navigate('/login', { replace: true });
       return;
     }
-    borrowMutation.mutate({ userId: currentUserId, bookId });
+    orderMutation.mutate({ userId: currentUserId, bookId });
   };
 
   return (
@@ -361,12 +361,12 @@ export function CatalogPage() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {booksQuery.data?.content.map((book) => (
-          <BookCard key={book.id} book={book} onBorrow={onBorrow} isRecommended={recommendedIds.has(book.id)} />
+          <BookCard key={book.id} book={book} onOrder={onOrder} isRecommended={recommendedIds.has(book.id)} />
         ))}
       </div>
 
-      {borrowMutation.isSuccess && <p className="mt-3 text-sm text-green-700">Книга успешно выдана.</p>}
-      {borrowMutation.error && <p className="mt-3 text-sm text-red-700">Не удалось выдать книгу.</p>}
+      {orderMutation.isSuccess && <p className="mt-3 text-sm text-green-700">Заказ на книгу успешно оформлен.</p>}
+      {orderMutation.error && <p className="mt-3 text-sm text-red-700">Не удалось оформить заказ.</p>}
 
       <Pagination
         page={booksQuery.data?.number ?? page}

@@ -2,6 +2,7 @@ package com.example.library.repository;
 
 import com.example.library.model.Reservation;
 import com.example.library.model.ReservationStatus;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByUserIdOrderByCreatedAtDesc(Long userId);
     Optional<Reservation> findFirstByBookIdAndStatusOrderByCreatedAtAsc(Long bookId, ReservationStatus status);
     boolean existsByUserIdAndBookIdAndStatus(Long userId, Long bookId, ReservationStatus status);
+    boolean existsByUserIdAndBookIdAndStatusIn(Long userId, Long bookId, Collection<ReservationStatus> statuses);
 
     @Query("""
             select r from Reservation r

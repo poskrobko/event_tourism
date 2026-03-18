@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchLoans, fetchMe, fetchRecommendations, updateMe, updatePreferences } from '../../api/libraryApi';
+import { fetchLoans, fetchMe, fetchRecommendations, fetchReservations, updateMe, updatePreferences } from '../../api/libraryApi';
 import type { PreferencesPayload, RecommendationSource } from '../../types/api';
 
 export function useRecommendationsQuery(userId: number | null, page = 0, size = 20, source: RecommendationSource = 'all') {
@@ -18,6 +18,15 @@ export function useUpdatePreferencesMutation(userId: number | null) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['recommendations', userId] });
     },
+  });
+}
+
+
+export function useReservationsQuery(userId?: number | null) {
+  return useQuery({
+    queryKey: ['reservations', userId ?? 'me'],
+    queryFn: () => fetchReservations(userId),
+    enabled: userId === undefined || userId === null || Boolean(userId),
   });
 }
 

@@ -37,10 +37,11 @@ public class ReservationService {
 
         User user = userRepository.findById(request.userId()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         Book book = bookRepository.findById(request.bookId()).orElseThrow(() -> new IllegalArgumentException("Book not found"));
-        if (book.getAvailableCopies() > 0) {
-            throw new IllegalStateException("Reservation is available only when all copies are unavailable");
-        }
-        boolean exists = reservationRepository.existsByUserIdAndBookIdAndStatus(user.getId(), book.getId(), ReservationStatus.WAITING);
+        boolean exists = reservationRepository.existsByUserIdAndBookIdAndStatusIn(
+                user.getId(),
+                book.getId(),
+                List.of(ReservationStatus.WAITING, ReservationStatus.NOTIFIED)
+        );
         if (exists) {
             throw new IllegalArgumentException("Active reservation already exists for this user/book");
         }
@@ -48,8 +49,14 @@ public class ReservationService {
         Reservation reservation = new Reservation();
         reservation.setUser(user);
         reservation.setBook(book);
-        reservation.setStatus(ReservationStatus.WAITING);
         reservation.setCreatedAt(Instant.now());
+        if (book.getAvailableCopies() > 0) {
+            reservation.setStatus(ReservationStatus.NOTIFIED);
+            reservation.setNotifiedAt(Instant.now());
+            reservation.setExpiresAt(Instant.now().plus(24, ChronoUnit.HOURS));
+        } else {
+            reservation.setStatus(ReservationStatus.WAITING);
+        }
         return toDto(reservationRepository.save(reservation));
     }
 
@@ -57,8 +64,7 @@ public class ReservationService {
     public ReservationDtos.ReservationResponse cancel(Long reservationId, Long userId) {
         currentUserService.requireSameUserOrAdmin(userId);
 
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+        Reservation reservation = getReservationEntity(reservationId);
         if (!reservation.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("Reservation does not belong to user");
         }
@@ -68,6 +74,12 @@ public class ReservationService {
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservation.setCancelledAt(Instant.now());
         return toDto(reservationRepository.save(reservation));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationDtos.ReservationResponse> getCurrentUserReservations() {
+        Long userId = currentUserService.getCurrentUserId();
+        return reservationRepository.findByUserIdOrderByCreatedAtDesc(userId).stream().map(this::toDto).toList();
     }
 
     @Transactional(readOnly = true)
@@ -88,7 +100,18 @@ public class ReservationService {
                 .orElse(null);
     }
 
-    private ReservationDtos.ReservationResponse toDto(Reservation reservation) {
+    @Transactional(readOnly = true)
+    public Reservation getReservationEntity(Long reservationId) {
+        return reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+    }
+
+    @Transactional
+    public Reservation saveReservationEntity(Reservation reservation) {
+        return reservationRepository.save(reservation);
+    }
+
+    public ReservationDtos.ReservationResponse toDto(Reservation reservation) {
         return new ReservationDtos.ReservationResponse(
                 reservation.getId(),
                 reservation.getUser().getId(),

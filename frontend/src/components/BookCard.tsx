@@ -4,12 +4,12 @@ import type { Book } from '../types/api';
 
 type BookCardProps = {
   book: Book;
-  onBorrow?: (bookId: number) => void;
+  onOrder?: (bookId: number) => void;
   isRecommended?: boolean;
   recommendationTags?: Array<'SYSTEM' | 'USER'>;
 };
 
-export function BookCard({ book, onBorrow, isRecommended, recommendationTags }: BookCardProps) {
+export function BookCard({ book, onOrder, isRecommended, recommendationTags }: BookCardProps) {
   return (
     <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
       <img className="h-52 w-full object-cover" src={getBookCoverUrl(book.id)} alt={`Обложка: ${book.title}`} />
@@ -32,29 +32,15 @@ export function BookCard({ book, onBorrow, isRecommended, recommendationTags }: 
             )}
           </div>
         )}
-        <p className="text-sm text-slate-700">
-          <span className="font-semibold">Author:</span> {book.author}
-        </p>
-        <p className="text-sm text-slate-700">
-          <span className="font-semibold">Year:</span> {book.publicationYear}
-        </p>
-        <p className="text-sm text-slate-700">
-          <span className="font-semibold">Genres:</span> {book.genres?.join(', ') || '—'}
-        </p>
-        <p className="text-sm text-slate-700">
-          <span className="font-semibold">ISBN:</span> {book.isbn || '—'}
-        </p>
-        <p className="text-sm text-slate-700">
-          <span className="font-semibold">Available:</span> {book.availableCopies}/{book.totalCopies}
-        </p>
+        <p className="text-sm text-slate-700"><span className="font-semibold">Author:</span> {book.author}</p>
+        <p className="text-sm text-slate-700"><span className="font-semibold">Year:</span> {book.publicationYear}</p>
+        <p className="text-sm text-slate-700"><span className="font-semibold">Genres:</span> {book.genres?.join(', ') || '—'}</p>
+        <p className="text-sm text-slate-700"><span className="font-semibold">ISBN:</span> {book.isbn || '—'}</p>
+        <p className="text-sm text-slate-700"><span className="font-semibold">Available:</span> {book.availableCopies}/{book.totalCopies}</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          {onBorrow && (
-            <button
-              className="rounded-md bg-slate-900 px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={book.availableCopies < 1}
-              onClick={() => onBorrow(book.id)}
-            >
-              Borrow
+          {onOrder && (
+            <button className="rounded-md bg-slate-900 px-3 py-2 text-sm text-white" onClick={() => onOrder(book.id)}>
+              Order
             </button>
           )}
           {book.hasFile && (

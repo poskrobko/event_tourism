@@ -146,7 +146,7 @@ where u.email = 'anna.reader@library.local'
 
 -- Loans
 insert into loans (user_id, book_id, status, borrowed_at, due_date, returned_at)
-select u.id, b.id, 'ACTIVE', current_date - 3, current_date + 11, null
+select u.id, b.id, 'ISSUED', current_date - 3, current_date + 11, null
 from users u, books b
 where u.email = 'anna.reader@library.local'
   and b.title = 'Dune'
@@ -154,7 +154,7 @@ where u.email = 'anna.reader@library.local'
   and not exists (
       select 1
       from loans l
-      where l.user_id = u.id and l.book_id = b.id and l.status = 'ACTIVE'
+      where l.user_id = u.id and l.book_id = b.id and l.status = 'ISSUED'
   );
 
 insert into loans (user_id, book_id, status, borrowed_at, due_date, returned_at)

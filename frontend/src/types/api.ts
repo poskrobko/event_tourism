@@ -30,8 +30,6 @@ export type RecommendationItem = {
   sourceTags: Array<'SYSTEM' | 'USER'>;
 };
 
-
-
 export type BookDetails = {
   book: Book;
   averageRating: number;
@@ -61,7 +59,16 @@ export type Loan = {
   returnedAt?: string | null;
 };
 
-
+export type Reservation = {
+  id: number;
+  userId: number;
+  bookId: number;
+  status: string;
+  createdAt: string;
+  notifiedAt?: string | null;
+  expiresAt?: string | null;
+  cancelledAt?: string | null;
+};
 
 export type AdminUser = {
   id: number;
@@ -79,6 +86,24 @@ export type AdminLoan = {
   status: string;
   borrowedAt: string;
   dueDate: string;
+  returnedAt?: string | null;
+};
+
+export type LibrarianReservation = {
+  id: number;
+  userId: number;
+  userEmail: string;
+  bookId: number;
+  bookTitle: string;
+  status: string;
+  createdAt: string;
+  notifiedAt?: string | null;
+  expiresAt?: string | null;
+  cancelledAt?: string | null;
+  loanId?: number | null;
+  loanStatus?: string | null;
+  borrowedAt?: string | null;
+  dueDate?: string | null;
   returnedAt?: string | null;
 };
 

@@ -1,5 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { deleteAdminBook, deleteAdminUser, fetchAdminBooks, fetchAdminLoans, fetchAdminUsers, fetchLibrarianLoans, inviteLibrarian, updateAdminUser } from '../../api/libraryApi';
+import {
+  deleteAdminBook,
+  deleteAdminUser,
+  fetchAdminBooks,
+  fetchAdminLoans,
+  fetchAdminUsers,
+  fetchLibrarianReservations,
+  inviteLibrarian,
+  issueLibrarianReservation,
+  returnLibrarianReservation,
+  updateAdminUser,
+} from '../../api/libraryApi';
 import type { BookSearchParams } from '../../types/api';
 
 export function useAdminUsersQuery(params: { page: number; size: number; query?: string; role?: string }, enabled: boolean) {
@@ -57,14 +68,38 @@ export function useAdminLoansQuery(params: { page: number; size: number; userQue
   });
 }
 
-export function useLibrarianLoansQuery(params: { page: number; size: number; userQuery?: string; bookQuery?: string; status?: string }, enabled: boolean) {
+export function useLibrarianReservationsQuery(params: { page: number; size: number; userQuery?: string; bookQuery?: string; status?: string }, enabled: boolean) {
   return useQuery({
-    queryKey: ['librarian-loans', params],
-    queryFn: () => fetchLibrarianLoans(params),
+    queryKey: ['librarian-reservations', params],
+    queryFn: () => fetchLibrarianReservations(params),
     enabled,
   });
 }
 
+export function useIssueLibrarianReservationMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (reservationId: number) => issueLibrarianReservation(reservationId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['librarian-reservations'] });
+      void queryClient.invalidateQueries({ queryKey: ['books'] });
+      void queryClient.invalidateQueries({ queryKey: ['loans'] });
+    },
+  });
+}
+
+export function useReturnLibrarianReservationMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (reservationId: number) => returnLibrarianReservation(reservationId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['librarian-reservations'] });
+      void queryClient.invalidateQueries({ queryKey: ['books'] });
+      void queryClient.invalidateQueries({ queryKey: ['loans'] });
+      void queryClient.invalidateQueries({ queryKey: ['reservations'] });
+    },
+  });
+}
 
 export function useInviteLibrarianMutation() {
   return useMutation({

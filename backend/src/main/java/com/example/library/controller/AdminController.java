@@ -196,7 +196,12 @@ public class AdminController {
                 reservation.getCreatedAt(),
                 reservation.getNotifiedAt(),
                 reservation.getExpiresAt(),
-                reservation.getCancelledAt()
+                reservation.getCancelledAt(),
+                null,
+                null,
+                null,
+                null,
+                null
         );
     }
 

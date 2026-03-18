@@ -46,7 +46,12 @@ public class AdminDtos {
             Instant createdAt,
             Instant notifiedAt,
             Instant expiresAt,
-            Instant cancelledAt
+            Instant cancelledAt,
+            Long loanId,
+            LoanStatus loanStatus,
+            LocalDate borrowedAt,
+            LocalDate dueDate,
+            LocalDate returnedAt
     ) {}
 
     public record AdminRatingResponse(

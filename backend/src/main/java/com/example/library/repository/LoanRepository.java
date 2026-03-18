@@ -2,7 +2,9 @@ package com.example.library.repository;
 
 import com.example.library.model.Loan;
 import com.example.library.model.LoanStatus;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +15,9 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
     List<Loan> findByUserIdOrderByBorrowedAtDesc(Long userId);
     long countByUserIdAndStatus(Long userId, LoanStatus status);
     boolean existsByUserIdAndBookIdAndStatus(Long userId, Long bookId, LoanStatus status);
+    boolean existsByUserIdAndBookIdAndStatusIn(Long userId, Long bookId, Collection<LoanStatus> statuses);
+    Optional<Loan> findFirstByUserIdAndBookIdAndStatusInOrderByBorrowedAtDesc(Long userId, Long bookId, Collection<LoanStatus> statuses);
+    Optional<Loan> findFirstByUserIdAndBookIdOrderByBorrowedAtDesc(Long userId, Long bookId);
 
     @Query("""
             select l from Loan l

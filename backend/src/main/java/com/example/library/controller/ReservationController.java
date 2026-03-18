@@ -25,8 +25,13 @@ public class ReservationController {
         return reservationService.cancel(id, userId);
     }
 
+    @GetMapping("/users/me/reservations")
+    public List<ReservationDtos.ReservationResponse> myReservations() {
+        return reservationService.getCurrentUserReservations();
+    }
+
     @GetMapping("/users/{userId}/reservations")
-    public List<ReservationDtos.ReservationResponse> myReservations(@PathVariable Long userId) {
+    public List<ReservationDtos.ReservationResponse> userReservations(@PathVariable Long userId) {
         return reservationService.getUserReservations(userId);
     }
 }
