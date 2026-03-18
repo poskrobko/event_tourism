@@ -3,6 +3,7 @@ package com.example.library.config;
 import com.example.library.model.Role;
 import com.example.library.model.User;
 import com.example.library.repository.UserRepository;
+import java.util.HashSet;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +41,24 @@ public class DemoUsersBootstrap implements CommandLineRunner {
 
         createDemoUserIfMissing("anna.reader@library.local", "anna", Set.of(Role.ROLE_USER));
         createDemoUserIfMissing("boris.reader@library.local", "boris", Set.of(Role.ROLE_USER));
-        createDemoUserIfMissing("librarian@library.local", "librarian", Set.of(Role.ROLE_LIBRARIAN));
-        createDemoUserIfMissing("admin@library.local", "admin", Set.of(Role.ROLE_ADMIN));
+        createDemoUserIfMissing("librarian@library.local", "librarian", Set.of(Role.ROLE_USER, Role.ROLE_LIBRARIAN));
+        createDemoUserIfMissing("admin@library.local", "admin", Set.of(Role.ROLE_USER, Role.ROLE_ADMIN));
 
         log.info("Demo users are ready. Login with APP_DEMO_PASSWORD for anna.reader@library.local, boris.reader@library.local, librarian@library.local, admin@library.local");
     }
 
     private void createDemoUserIfMissing(String email, String nickname, Set<Role> roles) {
         User user = userRepository.findByEmail(email).orElseGet(User::new);
+        Set<Role> mergedRoles = new HashSet<>(roles);
+
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            mergedRoles.addAll(user.getRoles());
+        }
+
         user.setEmail(email);
         user.setNickname(nickname);
         user.setPasswordHash(passwordEncoder.encode(demoPassword));
-        user.setRoles(roles);
+        user.setRoles(mergedRoles);
         userRepository.save(user);
     }
 }
