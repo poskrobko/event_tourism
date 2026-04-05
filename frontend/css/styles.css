@@ -1,0 +1,41 @@
+:root {
+    --primary: #FF9760;
+    --accent: #FFD150;
+    --secondary: #458B73;
+}
+
+body {
+    background: #fffaf5;
+}
+
+.navbar, .btn-primary {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+.btn-primary:hover {
+    background-color: #ff8245 !important;
+}
+
+.badge-custom, .btn-accent {
+    background-color: var(--accent);
+    color: #2d2d2d;
+}
+
+.card-event {
+    border: 1px solid #ffe3d6;
+    transition: transform 0.2s;
+}
+
+.card-event:hover {
+    transform: translateY(-4px);
+}
+
+.section-title {
+    color: var(--secondary);
+    font-weight: 700;
+}
+
+.feedback {
+    min-height: 24px;
+}
