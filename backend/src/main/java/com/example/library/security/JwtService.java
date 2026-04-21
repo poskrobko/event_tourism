@@ -2,6 +2,7 @@ package com.example.library.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -42,7 +43,16 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-    public boolean isTokenValid(String token) {
-        return extractAllClaims(token).getExpiration().after(new Date());
+    public String extractRole(String token) {
+        return extractAllClaims(token).get("role", String.class);
+    }
+
+    public boolean isTokenValid(String token, String expectedSubject) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return claims.getExpiration().after(new Date()) && claims.getSubject().equals(expectedSubject);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }
