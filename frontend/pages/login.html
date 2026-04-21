@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login / Register</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+<div class="container py-5" style="max-width: 680px;">
+  <h2 class="section-title mb-4">Event Tourism: Вход</h2>
+
+  <div id="loginSection" class="mb-3">
+    <h5>Вход</h5>
+    <input id="loginEmail" class="form-control mb-2" type="email" placeholder="Email">
+    <input id="loginPassword" class="form-control mb-2" type="password" placeholder="Пароль">
+    <button class="btn btn-primary w-100" onclick="login()">Войти</button>
+  </div>
+
+  <div class="mb-2">
+    <span>Регистрация:</span>
+    <a href="#" id="registerToggle" onclick="toggleSection('registerSection'); return false;">Открыть форму</a>
+  </div>
+
+  <div id="registerSection" class="mb-3 d-none">
+    <h5>Регистрация</h5>
+    <input id="regName" class="form-control mb-2" placeholder="Имя">
+    <input id="regEmail" class="form-control mb-2" type="email" placeholder="Email">
+    <input id="regPassword" class="form-control mb-2" type="password" placeholder="Пароль">
+    <button class="btn btn-accent w-100" onclick="registerUser()">Зарегистрироваться</button>
+  </div>
+
+  <div class="mb-2">
+    <span>Восстановление пароля:</span>
+    <a href="#" id="recoverToggle" onclick="toggleSection('recoverSection'); return false;">Открыть форму</a>
+  </div>
+
+  <div id="recoverSection" class="mb-3 d-none">
+    <h5>Восстановление пароля</h5>
+    <input id="recoverEmail" class="form-control mb-2" type="email" placeholder="Email">
+    <button class="btn btn-outline-secondary w-100" onclick="recoverPassword()">Отправить ссылку</button>
+  </div>
+
+  <div id="authMessage" class="feedback mt-3"></div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPassword(password) {
+  return typeof password === 'string' && password.length >= 6;
+}
+
+function toggleSection(sectionId) {
+  document.getElementById(sectionId).classList.toggle('d-none');
+}
+
+function normalizeError(error) {
+  const msg = (error && error.message ? error.message : '').toLowerCase();
+  if (msg.includes('email already exists')) {
+    return 'Пользователь с таким email уже существует.';
+  }
+  if (msg.includes('wrong credentials')) {
+    return 'Пользователь не найден или неверный пароль.';
+  }
+  return error.message || 'Произошла ошибка. Попробуйте позже.';
+}
+
+async function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!isValidEmail(email)) {
+    return showMessage('authMessage', 'Введите корректный email.', true);
+  }
+  if (!isValidPassword(password)) {
+    return showMessage('authMessage', 'Пароль должен содержать минимум 6 символов.', true);
+  }
+
+  try {
+    const data = await request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', data.role);
+    window.location.href = '/frontend/pages/events.html';
+  } catch (e) {
+    showMessage('authMessage', normalizeError(e), true);
+  }
+}
+
+async function registerUser() {
+  const fullName = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+
+  if (!fullName) {
+    return showMessage('authMessage', 'Введите имя.', true);
+  }
+  if (!isValidEmail(email)) {
+    return showMessage('authMessage', 'Введите корректный email.', true);
+  }
+  if (!isValidPassword(password)) {
+    return showMessage('authMessage', 'Пароль должен содержать минимум 6 символов.', true);
+  }
+
+  try {
+    await request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ fullName, email, password })
+    });
+
+    showMessage('authMessage', 'Регистрация успешна. Теперь войдите.');
+    document.getElementById('registerSection').classList.add('d-none');
+  } catch (e) {
+    showMessage('authMessage', normalizeError(e), true);
+  }
+}
+
+function recoverPassword() {
+  const email = document.getElementById('recoverEmail').value.trim();
+
+  if (!isValidEmail(email)) {
+    return showMessage('authMessage', 'Введите корректный email для восстановления.', true);
+  }
+
+  showMessage('authMessage', `Ссылка для восстановления отправлена на ${email} (демо).`);
+  document.getElementById('recoverSection').classList.add('d-none');
+}
+</script>
+</body>
+</html>
