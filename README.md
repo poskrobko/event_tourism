@@ -28,7 +28,7 @@ docker compose up -d postgres redis
 cd backend && mvn spring-boot:run
 
 # 3) frontend
-cd frontend && python3 -m http.server 8081
+cd frontend && py -m http.server 8081
 ```
 
 > В репозитории доступны backend (`backend/`), frontend (`frontend/`), docker-compose для postgres/redis и CI workflow (`.github/workflows/ci.yml`).
